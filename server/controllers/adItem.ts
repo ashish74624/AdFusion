@@ -14,7 +14,7 @@ interface AdItemType extends Document {
 export default {
     list: async (query: FilterQuery<AdItemType>): Promise<AdItemType[]> => {
         try {
-            const res = await AdItem.find(query);
+            const res:any = await AdItem.find(query);
             if (res) console.log({ query }, "Lists AdItems");
             return res;
         } catch (error) {
@@ -34,7 +34,7 @@ export default {
 
     create: async (query: Partial<AdItemType>): Promise<AdItemType> => {
         try {
-            const res = await AdItem.create(query);
+            const res :any= await AdItem.create(query);
             if (res) console.log({ query }, "Creates AdItem");
             return res;
         } catch (error) {
