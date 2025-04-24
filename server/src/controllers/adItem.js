@@ -1,4 +1,4 @@
-import AdItem from "./../models/adItem";
+import AdItem from "./../models/adItem.js";
 
 export default {
   list: query => {

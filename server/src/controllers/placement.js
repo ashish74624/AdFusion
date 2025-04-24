@@ -1,4 +1,4 @@
-import Placement from "./../models/placement";
+import Placement from "./../models/placement.js";
 
 export default {
   list: query => {

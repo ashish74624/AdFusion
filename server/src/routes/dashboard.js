@@ -1,8 +1,8 @@
 import express from "express";
 
-import Report from "./../controllers/report";
-import Publisher from "./../controllers/publisher";
-import Advertiser from "./../controllers/advertiser";
+import Report from "./../controllers/report.js";
+import Publisher from "./../controllers/publisher.js";
+import Advertiser from "./../controllers/advertiser.js";
 
 const router = express.Router();
 

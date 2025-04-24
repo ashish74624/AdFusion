@@ -1,4 +1,4 @@
-import Advertiser from "./../models/advertiser";
+import Advertiser from "./../models/advertiser.js";
 
 export default {
   list: query => {

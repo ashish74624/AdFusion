@@ -1,6 +1,6 @@
 import moment from "moment";
 
-import Report from "./../models/report";
+import Report from "./../models/report.js";
 
 export default {
   list: query => {

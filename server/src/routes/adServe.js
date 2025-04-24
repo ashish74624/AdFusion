@@ -1,12 +1,12 @@
 import express from "express";
 import moment from "moment";
 
-import Zone from "./../controllers/zone";
-import Placement from "./../controllers/placement";
-import Campaign from "./../controllers/campaign";
-import CampaignAssignment from "./../controllers/campaignAssignment";
-import AdItem from "./../controllers/adItem";
-import Report from "./../controllers/report";
+import Zone from "./../controllers/zone.js";
+import Placement from "./../controllers/placement.js";
+import Campaign from "./../controllers/campaign.js";
+import CampaignAssignment from "./../controllers/campaignAssignment.js";
+import AdItem from "./../controllers/adItem.js";
+import Report from "./../controllers/report.js";
 
 const router = express.Router();
 

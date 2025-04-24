@@ -1,4 +1,4 @@
-import Publisher from "./../models/publisher";
+import Publisher from "./../models/publisher.js";
 
 export default {
   list: query => {

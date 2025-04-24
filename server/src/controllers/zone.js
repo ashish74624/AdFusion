@@ -1,4 +1,4 @@
-import Zone from "./../models/zone";
+import Zone from "./../models/zone.js";
 
 export default {
   list: query => {

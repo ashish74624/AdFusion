@@ -1,12 +1,12 @@
 import express from "express";
-import dashboardRoute from "./routes/dashboard";
-import publisherRoute from "./routes/publisher";
-import zoneRoute from "./routes/zone";
-import advertiserRoute from "./routes/advertiser";
-import campaignRoute from "./routes/campaign";
-import adServeRoute from "./routes/adServe";
-import placementRoute from "./routes/placement";
-import adItemRoute from "./routes/adItem";
+import dashboardRoute from "./routes/dashboard.js";
+import publisherRoute from "./routes/publisher.js";
+import zoneRoute from "./routes/zone.js";
+import advertiserRoute from "./routes/advertiser.js";
+import campaignRoute from "./routes/campaign.js";
+import adServeRoute from "./routes/adServe.js";
+import placementRoute from "./routes/placement.js";
+import adItemRoute from "./routes/adItem.js";
 
 const router = express.Router();
 

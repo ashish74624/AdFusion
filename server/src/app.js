@@ -3,10 +3,10 @@ import expressHandlebars from "express-handlebars";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 
-import config from "./../config.json";
-import router from "./router";
-import init from "./init";
-import handlebars from "./handlebars";
+import config from "../config.json" assert { type: "json" };
+import router from "./router.js";
+import init from "./init.js";
+import handlebars from "./handlebars.js";
 
 const app = express();
 const port = 3001;

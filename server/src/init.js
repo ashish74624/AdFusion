@@ -1,10 +1,10 @@
-import Publisher from "./controllers/publisher";
-import Zone from "./controllers/zone";
-import Advertiser from "./controllers/advertiser";
-import Campaign from "./controllers/campaign";
-import AdItem from "./controllers/adItem";
-import CampaignAssignment from "./controllers/campaignAssignment";
-import Placement from "./controllers/placement";
+import Publisher from "./controllers/publisher.js";
+import Zone from "./controllers/zone.js";
+import Advertiser from "./controllers/advertiser.js";
+import Campaign from "./controllers/campaign.js";
+import AdItem from "./controllers/adItem.js";
+import CampaignAssignment from "./controllers/campaignAssignment.js";
+import Placement from "./controllers/placement.js";
 
 export default async() => {
   const publishers = await Publisher.list({ });

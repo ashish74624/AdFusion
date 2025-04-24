@@ -1,4 +1,4 @@
-import CampaignAssignment from "./../models/campaignAssignment";
+import CampaignAssignment from "./../models/campaignAssignment.js";
 
 export default {
   list: query => {

@@ -1,7 +1,7 @@
 import express from "express";
 
-import AdItem from "./../controllers/adItem";
-import CampaignAssignment from "./../controllers/campaignAssignment";
+import AdItem from "./../controllers/adItem.js";
+import CampaignAssignment from "./../controllers/campaignAssignment.js";
 
 const router = express.Router();
 

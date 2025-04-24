@@ -1,6 +1,6 @@
 import express from "express";
 
-import Placement from "./../controllers/placement";
+import Placement from "./../controllers/placement.js";
 
 const router = express.Router();
 

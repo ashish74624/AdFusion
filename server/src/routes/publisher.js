@@ -1,9 +1,9 @@
 import express from "express";
 
-import Publisher from "./../controllers/publisher";
-import Zone from "./../controllers/zone";
-import Placement from "./../controllers/placement";
-import Advertiser from "./../controllers/advertiser";
+import Publisher from "./../controllers/publisher.js";
+import Zone from "./../controllers/zone.js";
+import Placement from "./../controllers/placement.js";
+import Advertiser from "./../controllers/advertiser.js";
 
 const router = express.Router();
 

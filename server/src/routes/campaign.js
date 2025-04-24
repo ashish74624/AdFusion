@@ -1,13 +1,13 @@
 import express from "express";
 
-import Publisher from "./../controllers/publisher";
-import Campaign from "./../controllers/campaign";
-import CampaignAssignment from "./../controllers/campaignAssignment";
-import AdItem from "./../controllers/adItem";
-import Placement from "./../controllers/placement";
-import Zone from "./../controllers/zone";
-import Advertiser from "./../controllers/advertiser";
-import Report from "./../controllers/report";
+import Publisher from "./../controllers/publisher.js";
+import Campaign from "./../controllers/campaign.js";
+import CampaignAssignment from "./../controllers/campaignAssignment.js";
+import AdItem from "./../controllers/adItem.js";
+import Placement from "./../controllers/placement.js";
+import Zone from "./../controllers/zone.js";
+import Advertiser from "./../controllers/advertiser.js";
+import Report from "./../controllers/report.js";
 
 const router = express.Router();
 
