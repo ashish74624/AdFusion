@@ -1,3 +1,11 @@
+// --- app.js (ES‑module) ---
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
+// … your existing imports …
 import express from "express";
 import expressHandlebars from "express-handlebars";
 import mongoose from "mongoose";
@@ -8,50 +16,47 @@ import router from "./router.js";
 import init from "./init.js";
 import handlebars from "./handlebars.js";
 
-const app = express();
+const app  = express();
 const port = 3001;
 handlebars();
 
-// Connect to Database
-const databaseUri = config.database.uri;
-const databaseOptions = config.database.options;
-mongoose.connect(databaseUri, databaseOptions, async(error) => {
-  if (error) {
-    console.error(error);
-    return;
-  }
+// ────────────────────────────────────────
+// DB connection
+const { uri: databaseUri, options: databaseOptions } = config.database;
+mongoose.connect(databaseUri, databaseOptions, (err) => {
+  if (err) return console.error(err);
   console.log("MongoDB connected");
-
-  // Creates Default Data
-  init();
+  init();             // create default data
 });
 
-// Set Template Engine
-app.engine("handlebars", expressHandlebars({
-  layoutsDir: __dirname + "/../views/layouts/",
-  partialsDir: __dirname + "/../views"
-}));
+// ────────────────────────────────────────
+// View engine
+app.engine(
+  "handlebars",
+  expressHandlebars({
+    layoutsDir : path.join(__dirname, "..", "views", "layouts"),
+    partialsDir: path.join(__dirname, "..", "views"),
+  }),
+);
 app.set("view engine", "handlebars");
 
-// Set Middlewares
+// ────────────────────────────────────────
+// Middleware
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("public"));
 app.use(router);
 
-// Error Handling 404, 500
-app.use((req, res, next) => {
+// ────────────────────────────────────────
+// Error handlers
+app.use((req, res) => {
   console.warn("404 Page Not Found", req.url);
   res.sendStatus(404);
-  return;
 });
-
-app.use((error, req, res, next) => {
-  console.error(error);
+app.use((err, req, res, next) => {
+  console.error(err);
   res.sendStatus(500);
-  return;
 });
 
-app.listen(port, () => {
-  console.log("Server is running on port", port);
-});
+// ────────────────────────────────────────
+app.listen(port, () => console.log("Server running on port", port));
