@@ -1,30 +1,31 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "",
-  "type": "module",
-  "main": "dist/index.js",
+  "name": "adserver-tutorial",
+  "description": "Adserver Tutorial for platform developers",
   "scripts": {
-    "dev": "nodemon --watch ./ --ext ts --exec node --loader ts-node/esm index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/app.js",
+    "dev": "nodemon --exec babel-node --presets env,stage-2 src/app.js",
+    "build": "babel -d ./dist ./src -s"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kijepark/adserver-tutorial.git"
+  },
+  "author": "Kije Park",
+  "license": "MIT",
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "express": "^5.1.0",
-    "express-handlebars": "^8.0.3",
-    "mongoose": "^8.13.2",
-    "mongoose-sequence": "^6.0.1"
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^5.1.0",
+    "handlebars": "^4.7.6",
+    "moment": "^2.27.0",
+    "mongoose": "^5.10.0",
+    "mongoose-sequence": "^5.2.2"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.19.5",
-    "@types/express": "^5.0.1",
-    "@types/express-handlebars": "^6.0.2",
-    "@types/node": "^22.14.1",
-    "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "nodemon": "^2.0.4",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1"
   }
 }
