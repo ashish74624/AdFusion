@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Outlet } from "react-router-dom";
 import { People, Terminal,Tv } from 'react-bootstrap-icons';
 import {Toaster} from "react-hot-toast"
+import Section from "@/components/Section";
 
 export default function Admin() {
     const links = [
@@ -53,9 +54,9 @@ export default function Admin() {
                 </Sidebar>
                 {/* <Dashboard /> */}
             </aside>
-            <div className="flex-1">
+            <Section className="flex-1 h-screen ">
                 <Outlet />
-            </div>
+            </Section>
            <Toaster/>
         </section>
     );

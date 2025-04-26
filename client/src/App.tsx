@@ -6,6 +6,9 @@ import Dashboard from './pages/Dashboard';
 import Publishers from './pages/Publisher';
 import PublisherView from './pages/View';
 import { ModalProvider } from './components/ui/animated-modal';
+import AdvertiserList from './pages/AdvertiserList';
+import AdvertiserView from './pages/AdvertiserView';
+import CampaignManager from './pages/CampaignView';
 
 const App = () => {
   return (
@@ -17,6 +20,9 @@ const App = () => {
             <Route path='dashboard' element={<Dashboard />} />
             <Route path='publisher' element={<Publishers />} />
             <Route path='publisher/view' element={<PublisherView />} />
+            <Route path='advertiser' element={<AdvertiserList />} />
+            <Route path='advertiser/view' element={<AdvertiserView />} />
+            <Route path='advertiser/campaign/view' element={<CampaignManager />} />
           </Route>
         </Routes>
       </Router>

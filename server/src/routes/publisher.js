@@ -35,12 +35,7 @@ router.get("/publisher/view", async(req, res, next) => {
     const publisher = await Publisher.retrieve({ id: publisherID });
     const zones = await Zone.listAndPlacements({ publisher: publisherID });
 
-    // return res.render("publisher/view", {
-    //   publishers: publishersAndZones,
-    //   advertisers: advertisersAndZones,
-    //   publisher: publisher,
-    //   zones: zones
-    // });
+  
 
     return res.json({ publishers: publishersAndZones,
       advertisers: advertisersAndZones,
