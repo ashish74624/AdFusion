@@ -9,14 +9,17 @@ const router = express.Router();
 router.get("/", async(req, res, next) => {
   try {
     const reports = await Report.overview();
+    console.log(reports);
     const publishersAndZones = await Publisher.listAndZones({ });
     const advertisersAndZones = await Advertiser.listAndCampaigns({ });
 
-    return res.render("dashboard", {
-      reports: JSON.stringify(reports),
-      publishers: publishersAndZones,
-      advertisers: advertisersAndZones
-    });
+    // return res.render("dashboard", {
+    //   reports: JSON.stringify(reports),
+    //   publishers: publishersAndZones,
+    //   advertisers: advertisersAndZones
+    // });
+
+    return res.json({ reports:JSON.stringify(reports), publishersAndZones:publishersAndZones , advertisersAndZones:advertisersAndZones})
   }catch(error) {
     return next(error);
   }

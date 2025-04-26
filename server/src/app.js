@@ -10,7 +10,7 @@ import express from "express";
 import expressHandlebars from "express-handlebars";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-
+import cors from 'cors';
 import config from "../config.json" assert { type: "json" };
 import router from "./router.js";
 import init from "./init.js";
@@ -29,6 +29,11 @@ mongoose.connect(databaseUri, databaseOptions, (err) => {
   init();             // create default data
 });
 
+app.use(cors({
+  origin: "*",
+  methods :['GET','PUT','POST','DELETE'],
+
+}));
 // ────────────────────────────────────────
 // View engine
 app.engine(

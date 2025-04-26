@@ -1,12 +1,20 @@
-import { Button } from './components/ui/button'
 
-function App() {
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import Admin from './pages/Admin';
+import Dashboard from './pages/Dashboard';
 
+const App = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh">
-      <Button variant="secondary">Click me</Button>
-    </div>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path='/' element={<Home/>}/>
+        <Route path='/admin' element={<Admin/>}>
+          <Route path='dashboard' element={<Dashboard/>}/>
+        </Route>
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
