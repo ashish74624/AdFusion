@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Outlet } from "react-router-dom";
 import { People, Terminal,Tv } from 'react-bootstrap-icons';
-
+import {Toaster} from "react-hot-toast"
 
 export default function Admin() {
     const links = [
@@ -56,6 +56,7 @@ export default function Admin() {
             <div className="flex-1">
                 <Outlet />
             </div>
+           <Toaster/>
         </section>
     );
 }

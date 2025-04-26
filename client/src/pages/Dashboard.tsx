@@ -1,3 +1,4 @@
+import { base_url } from "@/utils/baseUrl";
 import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -19,7 +20,7 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const response = await fetch("http://localhost:3001/");
+                const response = await fetch(`${base_url}/`);
                 const data = await response.json();
                 const parsedReports: ReportData = JSON.parse(data.reports.replace(/&quot;/g, '"'));
 

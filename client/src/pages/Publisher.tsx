@@ -1,10 +1,11 @@
-'use client';
-
 import Section from '@/components/Section';
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from '@/components/ui/animated-modal';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import React, { useState, useEffect } from 'react';
+import { base_url } from '@/utils/baseUrl';
+import  { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Zone {
   _id: string;
@@ -25,11 +26,11 @@ export default function Publishers() {
   // const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDomain, setNewDomain] = useState('');
-
+  const [forceState,setForceState] = useState(1)
   useEffect(() => {
     async function fetchPublishers() {
       try {
-        const response = await fetch('http://localhost:3001/publisher/list');
+        const response = await fetch(`${base_url}/publisher/list`);
         const data = await response.json();
         setPublishers(data.publishers);
       } catch (error) {
@@ -37,10 +38,33 @@ export default function Publishers() {
       }
     }
     fetchPublishers();
-  }, []);
+  }, [forceState]);
+
+  const navigate = useNavigate();
+
+  const createPublisher=async()=>{
+    try {
+      const res = await fetch(`${base_url}/publisher/create`,{
+        method:"POST",
+        headers:{
+          "Content-Type": "application/json"
+        },
+        body:JSON.stringify({
+          name:newName,
+          domain:newDomain
+        })
+      })
+
+      if(res.ok){
+        setForceState((prev)=>prev+1);
+      }
+    } catch  {
+      toast.error("Failed to create new Publisher at the monent");
+    }
+  }
 
   return (
-    <Section className="w-full h-full p-6">
+    <Section >
       <div className="flex justify-between">
         <h3 className="text-2xl font-semibold mb-6">Publishers</h3>
         <Modal>
@@ -83,8 +107,8 @@ export default function Publishers() {
               </div>
             </ModalContent>
             <ModalFooter className="gap-4">
-              <Button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
-                Book Now
+              <Button onClick={()=>createPublisher()}>
+                Create
               </Button>
             </ModalFooter>
           </ModalBody>
@@ -104,7 +128,10 @@ export default function Publishers() {
           </TableHeader>
           <TableBody>
             {publishers.map((publisher, index) => (
-              <TableRow key={publisher._id}>
+              <TableRow key={publisher._id}
+                onClick={() => navigate(`/admin/publisher/view?publisher_id=${publisher.id}`)}
+                className=" cursor-pointer"
+              >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{publisher.name}</TableCell>
                 <TableCell>{publisher.zones.length}</TableCell>
