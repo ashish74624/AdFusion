@@ -1,19 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
-import {
-    Chart as ChartJS,
-    Title,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    ChartData,
-} from "chart.js";
-
-// Register the required components for Chart.js
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement);
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface ReportData {
     labels: string[];
@@ -21,17 +7,30 @@ interface ReportData {
     clicks: number[];
 }
 
+interface ChartDataPoint {
+    label: string;
+    impressions: number;
+    clicks: number;
+}
+
 const Dashboard: React.FC = () => {
-    const [reports, setReports] = useState<ReportData | null>(null);
+    const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
     useEffect(() => {
-        // Fetch data from the API
         const fetchReports = async () => {
             try {
-                const response = await fetch("http://localhost:3001/"); // Replace with your API endpoint
+                const response = await fetch("http://localhost:3001/");
                 const data = await response.json();
-                const parsedReports: ReportData = JSON.parse(data.reports.replace(/&quot;/g, '"')); // Parse the reports data
-                setReports(parsedReports);
+                const parsedReports: ReportData = JSON.parse(data.reports.replace(/&quot;/g, '"'));
+
+                // Transform to Recharts format
+                const formattedData: ChartDataPoint[] = parsedReports.labels.map((label, index) => ({
+                    label,
+                    impressions: parsedReports.impressions[index],
+                    clicks: parsedReports.clicks[index],
+                }));
+
+                setChartData(formattedData);
             } catch (error) {
                 console.error("Error fetching reports:", error);
             }
@@ -40,72 +39,43 @@ const Dashboard: React.FC = () => {
         fetchReports();
     }, []);
 
-    // Chart.js data configuration (with explicit typing)
-    const chartData: ChartData<"line", number[], string> = reports
-        ? {
-            labels: reports.labels,
-            datasets: [
-                {
-                    label: "Impressions",
-                    data: reports.impressions,
-                    backgroundColor: "rgb(225, 233, 240, 0.3)",
-                    borderColor: "rgba(205, 215, 223, 0.7)",
-                    pointBorderColor: "rgba(205, 215, 223)",
-                    pointBackgroundColor: "rgba(205, 215, 223)",
-                    pointBorderWidth: 3,
-                    borderWidth: 1,
-                },
-                {
-                    label: "Clicks",
-                    data: reports.clicks,
-                    backgroundColor: "rgba(232, 230, 255, 0.2)",
-                    borderColor: "rgba(198, 192, 255, 0.7)",
-                    pointBorderColor: "rgba(198, 192, 255)",
-                    pointBackgroundColor: "rgba(198, 192, 255)",
-                    pointBorderWidth: 3,
-                    borderWidth: 1,
-                },
-            ],
-        }
-        : {
-            labels: [],
-            datasets: [],
-        };
-
-    // Chart.js options configuration
-    const chartOptions = {
-        responsive: true,
-        scales: {
-            x: {
-                ticks: {
-                    fontSize: 11,
-                    color: "#969da5",
-                },
-                grid: {
-                    color: "rgba(0, 0, 0, 0.05)",
-                    zeroLineColor: "rgba(0, 0, 0, 0.05)",
-                },
-            },
-            y: {
-                beginAtZero: true,
-                stepSize: 500,
-                grid: {
-                    display: true,
-                },
-            },
-        },
-    };
-
     return (
         <div className="p-4">
-            <h3 className="text-2xl font-semibold mb-4">Dashboard</h3>
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-                {reports ? (
-                    <div className="relative h-80">
-                        <Line data={chartData} options={chartOptions} />
+            <h3 className="text-2xl font-semibold mb-4 text-gray-800">Dashboard</h3>
+            <div className="bg-white p-6 rounded-2xl shadow-md">
+                {chartData.length > 0 ? (
+                    <div className="h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="label" stroke="#969da5" fontSize={12} />
+                                <YAxis stroke="#969da5" fontSize={12} />
+                                <Tooltip />
+                                <Legend />
+                                <Line
+                                    type="monotone"
+                                    dataKey="impressions"
+                                    stroke="#97b4d3"
+                                    strokeWidth={2}
+                                    activeDot={{ r: 6 }}
+                                    isAnimationActive={true}
+                                    animationDuration={1000}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="clicks"
+                                    stroke="#a18df2"
+                                    strokeWidth={2}
+                                    activeDot={{ r: 6 }}
+                                    isAnimationActive={true}
+                                    animationDuration={1000}
+                                />
+
+                            </LineChart>
+                        </ResponsiveContainer>
                     </div>
                 ) : (
-                    <p>Loading...</p>
+                    <p className="text-gray-500">Loading...</p>
                 )}
             </div>
         </div>
