@@ -53,7 +53,7 @@ export default function Admin() {
                 </Sidebar>
                 {/* <Dashboard /> */}
             </aside>
-            <div className="flex-1 p-4">
+            <div className="flex-1">
                 <Outlet />
             </div>
         </section>
