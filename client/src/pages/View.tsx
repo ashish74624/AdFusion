@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import Section from "@/components/Section";
 import { Button } from "@/components/ui/button";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/components/ui/animated-modal";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { base_url } from "@/utils/baseUrl";
+import toast from "react-hot-toast";
 
 type Placement = {
     id: number;
@@ -30,22 +30,52 @@ const PublisherView = () => {
     const [zones, setZones] = useState<Zone[]>([]);
     const [searchParams] = useSearchParams();
 
+    const [name,setName] = useState("")
+
     const publisher_id = searchParams.get("publisher_id");
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${base_url}/publisher/view?publisher_id=${publisher_id}`);
+            const data = await res.json();
+            setPublisher(data.publisher);
+            setZones(data.zones);
+        } catch (error) {
+            console.error("Failed to fetch publisher and zones", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await fetch(`${base_url}/publisher/view?publisher_id=${publisher_id}`);
-                const data = await res.json();
-                setPublisher(data.publisher);
-                setZones(data.zones);
-            } catch (error) {
-                console.error("Failed to fetch publisher and zones", error);
-            }
-        };
-
+  
         fetchData();
     }, []);
+
+    const [selectedSize, setSelectedSize] = useState<string>("");
+
+    const addNewZone = async () => {
+        if (!selectedSize) {
+            toast.error("Please select a size before creating the zone.");
+            return;
+        }
+        try {
+            const res = await fetch(`${base_url}/zone/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    publisher_id: publisher_id,
+                    size: selectedSize,
+                    name: name
+                })
+            });
+            if (res.ok) {
+                fetchData();
+            }
+        } catch {
+            toast.error("Zone couldn't be added at the moment");
+        }
+    }
+
 
     return (
         <Section>
@@ -59,12 +89,10 @@ const PublisherView = () => {
                 <Modal>
                     <ModalTrigger>
                         <Button>
-
                             Add New
                         </Button>
                     </ModalTrigger>
                     <ModalBody>
-                        
                         <ModalContent>
                             <div className="space-y-4">
                                 <div>
@@ -76,35 +104,31 @@ const PublisherView = () => {
                                         type="text"
                                         placeholder=""
                                         className="w-full border rounded px-3 py-2"
+                                        value={name}
+                                        onChange={(e)=>setName(e.target.value)}
                                     />
                                 </div>
-
                                 <div>
-                                    {/* <label htmlFor="zone-size-select" className="block text-sm font-medium mb-1">
+                                    <label htmlFor="zone-size-select" className="block text-sm font-medium mb-1">
                                         Size
                                     </label>
-                                    <select id="zone-size-select" className="w-full border rounded px-3 py-2">
-                                        <option disabled>IAB Core Ad Units:</option>
+                                    <select
+                                        id="zone-size-select"
+                                        className="w-full border rounded px-3 py-2 bg-[#0b0a0b]"
+                                        value={selectedSize}
+                                        onChange={(e) => setSelectedSize(e.target.value)}
+                                    >
+                                        <option value="">Select Size</option> {/* <- New "select size" prompt */}
                                         <option value="300x250">300x250 - Medium Rectangle</option>
                                         <option value="180x150">180x150 - Rectangle</option>
                                         <option value="728x90">728x90 - Leaderboard</option>
-                                    </select> */}
-                                    <Select>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="IAB Core Ad Units:" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="300x250">300x250 - Medium Rectangle</SelectItem>
-                                            <SelectItem value="180x150">180x150 - Rectangle</SelectItem>
-                                            <SelectItem value="728x90">728x90 - Leaderboard</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    </select>
 
                                 </div>
                             </div>
                         </ModalContent>
                         <ModalFooter className="gap-4">
-                            <Button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
+                            <Button onClick={()=>addNewZone()}>
                                 Create
                             </Button>
                         </ModalFooter>

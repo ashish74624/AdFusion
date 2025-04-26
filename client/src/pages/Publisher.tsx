@@ -1,5 +1,5 @@
 import Section from '@/components/Section';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from '@/components/ui/animated-modal';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger, useModal } from '@/components/ui/animated-modal';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { base_url } from '@/utils/baseUrl';
@@ -23,24 +23,30 @@ interface Publisher {
 
 export default function Publishers() {
   const [publishers, setPublishers] = useState<Publisher[]>([]);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDomain, setNewDomain] = useState('');
-  const [forceState,setForceState] = useState(1)
-  useEffect(() => {
-    async function fetchPublishers() {
-      try {
-        const response = await fetch(`${base_url}/publisher/list`);
-        const data = await response.json();
-        setPublishers(data.publishers);
-      } catch (error) {
-        console.error('Failed to fetch publishers:', error);
-      }
+ 
+
+
+  async function fetchPublishers() {
+    try {
+      const response = await fetch(`${base_url}/publisher/list`);
+      const data = await response.json();
+      setPublishers(data.publishers);
+      setOpen(false)
+
+    } catch (error) {
+      console.error('Failed to fetch publishers:', error);
     }
+  }
+  useEffect(() => {
     fetchPublishers();
-  }, [forceState]);
+  }, []);
 
   const navigate = useNavigate();
+
+  const { setOpen } = useModal();
+
 
   const createPublisher=async()=>{
     try {
@@ -56,13 +62,15 @@ export default function Publishers() {
       })
 
       if(res.ok){
-        setForceState((prev)=>prev+1);
+        setOpen(false);
+        fetchPublishers();
       }
     } catch  {
       toast.error("Failed to create new Publisher at the monent");
     }
   }
 
+  
   return (
     <Section >
       <div className="flex justify-between">
@@ -70,7 +78,6 @@ export default function Publishers() {
         <Modal>
           <ModalTrigger>
             <Button>
-
               Add New
             </Button>
           </ModalTrigger>

@@ -55,6 +55,7 @@ router.post("/zone/create", async(req, res) => {
   try {
     const publisherID = req.body.publisher_id;
     const { name, size } = req.body;
+    console.log("**",publisherID)
     const width = size.split("x")[0];
     const height = size.split("x")[1];
 
