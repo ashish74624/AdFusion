@@ -1,11 +1,13 @@
-import { Modal, ModalBody, ModalContent, ModalTrigger } from '@/components/ui/animated-modal';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { base_url } from '@/utils/baseUrl';
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { Link, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Check, Code } from "lucide-react";
+import { base_url } from "@/utils/baseUrl";
+import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
+// TypeScript interfaces
 interface Zone {
     id: number;
     name: string;
@@ -18,95 +20,196 @@ interface Campaign {
     id: number;
     name: string;
     advertiser: number;
-    total_impressions: number;
+    total_impressions?: number;
+    eligible_ad_items?: number;
 }
 
+interface ZoneViewResponse {
+    publishers: Array<{
+        id: number;
+        name: string;
+        domain: string;
+        zones: Zone[];
+    }>;
+    advertisers: Array<{
+        id: number;
+        name: string;
+        campaigns: Campaign[];
+    }>;
+    zone: Zone;
+    assigned_campaigns: Campaign[];
+}
 
-export default function ZoneManagement() {
-    const [selectedTagType, setSelectedTagType] = useState('js');
+const ZoneManagement: React.FC = () => {
+    const [data, setData] = useState<ZoneViewResponse | null>(null);
+    const [tagType, setTagType] = useState<string>("js");
     const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
-    const [searchParams] = useSearchParams();
-    const [zone, setZone] = useState<Zone>();
-    const [assignedCampaigns, setAssignedCampaigns] = useState<Campaign[]>([]);
+    const [zoneTag, setZoneTag] = useState<string>("");
 
-    const zoneId = searchParams.get("zone_id");
+    const urlParams = new URLSearchParams(window.location.search);
+    const zoneId = urlParams.get("zone_id");
 
-
-
-    const toggleCampaignSelection = (campaignId: number) => {
-        if (selectedCampaigns.includes(campaignId)) {
-            setSelectedCampaigns(selectedCampaigns.filter(id => id !== campaignId));
-        } else {
-            setSelectedCampaigns([...selectedCampaigns, campaignId]);
-        }
-    };
-
+    // Fetch data from API
     const fetchData = async () => {
         try {
-            const res = await fetch(`${base_url}/zone/view?zone_id=${zoneId}}`);
-            if (res.ok) {
-                const data = await res.json();
-                setZone(data.zone);
-                setAssignedCampaigns(data.assigned_campaigns);
-            }
-        } catch {
-            toast.error("Failed to fetch data");
+            const response = await fetch(`${base_url}/zone/view?zone_id=${zoneId}`);
+            const responseData = await response.json();
+            setData(responseData);
+        } catch (error) {
+            console.error("Error fetching zone data:", error);
         }
-    }
-
-    useEffect(() => {
-        fetchData();
-    }, [])
-
-    const handleRemoveCampaigns = () => {
-        // Logic to remove selected campaigns would go here
-        console.log("Removing campaigns with IDs:", selectedCampaigns);
-        setSelectedCampaigns([]);
     };
 
+    useEffect(() => {
+        // Get zone_id from URL
+       
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (data) {
+            updateZoneTag();
+        }
+    }, [tagType, data]);
+
+    const updateZoneTag = () => {
+        if (!data) return;
+
+        const zoneId = new URLSearchParams(window.location.search).get("zone_id");
+        const host = `http://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
+
+        let tag = "";
+        switch (tagType) {
+            case "js":
+                tag = `<script type="text/javascript">\n` +
+                    `var absrc = "${host}/adserve?zone_id=${zoneId}&type=js";\n` +
+                    `document.write("<scr"+"ipt src="+absrc+" type='text/javascript'></scr"+"ipt>");\n` +
+                    `</script>`;
+                break;
+            case "iframe":
+                tag = `<iframe src="${host}/adserve?zone_id=${zoneId}&type=iframe"` +
+                    ` width="${data.zone.width}" height="${data.zone.height}" marginwidth="0" marginheight="0"` +
+                    ` hspace="0" vspace="0" frameborder="0" scrolling="no">` +
+                    `</iframe>`;
+                break;
+            case "json":
+                tag = `${host}/adserve?zone_id=${zoneId}&type=json`;
+                break;
+        }
+
+        setZoneTag(tag);
+    };
+
+    const handleCampaignAssign = async (campaignId: number) => {
+        const zoneId = new URLSearchParams(window.location.search).get("zone_id");
+
+        try {
+            const res =  await fetch(`${base_url}/placement/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    zone_id: zoneId,
+                    campaign_id: campaignId
+                }),
+            });
+
+            // Reload page to show updated data
+            if(res.ok){
+                toast.success("Assigment complete");
+                fetchData();
+            }
+            // window.location.reload();
+        } catch {
+            toast.error("Error assigning campaign:")
+        }
+    };
+
+    const handleDeleteSelectedCampaigns = async () => {
+        if (selectedCampaigns.length === 0) return;
+
+        const zoneId = new URLSearchParams(window.location.search).get("zone_id");
+
+        try {
+            const res = await fetch(`${base_url}/placement/delete`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    zone_id: zoneId,
+                    ids: selectedCampaigns
+                }),
+            });
+
+            // Reload page to show updated data
+            if(res.ok){
+                toast.success("Delete success");
+                fetchData();
+            }
+            // window.location.reload();
+        } catch {
+            toast.error("Error deleting campaign assignments:");
+        }
+    };
+
+    const toggleCampaignSelection = (campaignId: number) => {
+        setSelectedCampaigns(prevSelected => {
+            if (prevSelected.includes(campaignId)) {
+                return prevSelected.filter(id => id !== campaignId);
+            } else {
+                return [...prevSelected, campaignId];
+            }
+        });
+    };
+
+    if (!data) {
+        return <div className="p-4">Loading...</div>;
+    }
+
     return (
-        <div className="p-4">
-            {/* Zone header */}
-            <h3 className="text-xl font-light ">
-                {zone?.name} ({zone?.width}x{zone?.height})
+        <>
+            {/* Zone Header */}
+            <h3 className="text-xl font-bold mb-4">
+                {data.zone.name} ({data.zone.width}x{data.zone.height})
             </h3>
 
-            {/* Get Zone Tags button */}
-            <div className="mb-6 text-right">
-
+            {/* Get Zone Tags Button */}
+            <div className="flex justify-end mb-6">
                 <Modal>
                     <ModalTrigger>
                         <Button>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                            <span>Get Zone Tags</span>
+                            <span className="text-middle">Get Zone Tags</span>
+                            <Code className="mr-2 h-5 w-5" />
                         </Button>
                     </ModalTrigger>
                     <ModalBody>
                         <ModalContent>
-                            <h2 className="text-2xl font-light mb-4">Zone Tags</h2>
+                            <h2 className="text-xl font-bold mb-4">Zone Tags</h2>
 
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                                <select
-                                    value={selectedTagType}
-                                    onChange={(e) => setSelectedTagType(e.target.value)}
-                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border  bg-[#0b0a0b] rounded-md"
-                                >
-                                    <option value="js">JavaScript</option>
-                                    <option value="iframe">IFrame</option>
-                                    <option value="json">JSON Ad API</option>
-                                </select>
+                                <label className="block text-sm font-medium mb-1" htmlFor="zone-tag-type-select">Type</label>
+                                <div>
+                                    <select
+                                        id="zone-tag-type-select"
+                                        className="border rounded px-3 py-2 w-full bg-[#0B0A0B]"
+                                        value={tagType}
+                                        onChange={(e) => setTagType(e.target.value)}
+                                    >
+                                        <option value="js">JavaScript</option>
+                                        <option value="iframe">IFrame</option>
+                                        <option value="json">JSON Ad API</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="mb-4">
                                 <textarea
-                                    className="w-full border  rounded-md p-2 h-32"
-                                    rows={5}
-                                    placeholder=""
+                                    className="border rounded px-3 py-2 w-full h-40"
+                                    value={zoneTag}
                                     readOnly
-                                    value={`// Generated tag code for ${zone?.name} (${zone?.width}x${zone?.height}) - ${selectedTagType}`}
                                 />
                             </div>
                         </ModalContent>
@@ -115,10 +218,11 @@ export default function ZoneManagement() {
             </div>
 
 
-            {/* Assigned Campaigns Section */}
-            <div className="flex justify-between">
-                <h4 className="text-lg font-medium mb-4">Assigned Campaigns</h4>
 
+            {/* Assigned Campaigns Section */}
+            <h4 className="text-lg font-bold mt-8 mb-4">Assigned Campaigns</h4>
+
+            <div className="mb-4">
                 <Modal>
                     <ModalTrigger>
                         <Button>
@@ -127,77 +231,103 @@ export default function ZoneManagement() {
                     </ModalTrigger>
                     <ModalBody>
                         <ModalContent>
-                            <h4 className="text-lg font-medium mb-4">Select a campaign to assign to "{zone?.name}"</h4>
+                            <h4 className="text-lg font-bold mb-4">
+                                Select a campaign to assign to "{data.zone.name}"
+                            </h4>
 
-                            <div className="mb-4 overflow-x-auto">
-                                <Table >
-                                    <TableHeader>
+                            <Table className="w-full border-collapse mb-4">
+                                <TableHeader>
+                                    <TableRow className="border-b">
+                                        <TableCell></TableCell>
+                                        <TableCell>Campaign</TableCell>
+                                        <TableCell>Eligible Ad Items</TableCell>
+                                        <TableCell>Advertiser</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {data.advertisers.flatMap(advertiser =>
+                                        advertiser.campaigns.map(campaign => (
+                                            <TableRow
+                                                key={campaign.id}
+                                                className="border-b cursor-pointer"
+                                                onClick={() => handleCampaignAssign(campaign.id)}
+                                            >
+                                                <TableCell>
+                                                    <Button className="border rounded p-1">
+                                                        <Check className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {campaign.name}
+                                                </TableCell>
+                                                <TableCell>{campaign.eligible_ad_items || 0}</TableCell>
+                                                <TableCell>{advertiser.name}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                    {data.advertisers.flatMap(a => a.campaigns).length === 0 && (
                                         <TableRow>
-                                            <TableHead scope="col" ></TableHead>
-                                            <TableHead scope="col" >Campaign</TableHead>
-                                            <TableHead scope="col" >Eligible Ad Items</TableHead>
-                                            <TableHead scope="col" >Advertiser</TableHead>
+                                            <TableCell colSpan={4} className="py-4 text-center">No Campaigns Found</TableCell>
                                         </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell colSpan={4} >No Campaigns Found</TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                    )}
+                                </TableBody>
+                            </Table>
+
                         </ModalContent>
                     </ModalBody>
                 </Modal>
+               
             </div>
 
+
             {/* Assigned Campaigns Table */}
-            <Table>
+            <Table className="w-full border-collapse mb-4">
                 <TableHeader>
-                    <TableRow>
-                        <TableHead scope="col" ></TableHead>
-                        <TableHead scope="col" >Name</TableHead>
-                        <TableHead scope="col" >Total Impressions</TableHead>
+                    <TableRow className="border-b">
+                        <th className="py-2 text-left w-16"></th>
+                        <th className="py-2 text-left">Name</th>
+                        <th className="py-2 text-left">Total Impressions</th>
                     </TableRow>
                 </TableHeader>
-                <TableBody className="divide-y divide-gray-200">
-                    {assignedCampaigns.length > 0 ? (
-                        assignedCampaigns.map((campaign) => (
-                            <TableRow key={`${campaign.id}-${campaign.name}`}  >
-                                <TableCell>
-                                    <input
-                                        type="checkbox"
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                        checked={selectedCampaigns.includes(campaign.id)}
-                                        onChange={() => toggleCampaignSelection(campaign.id)}
-                                    />
-                                </TableCell>
-                                <TableCell className='hover:text-blue-500'>
-                                    <Link to={`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`}>
+                <TableBody>
+                    {data.assigned_campaigns.map(campaign => (
+                        <TableRow key={`${campaign.id}-${campaign.name}`} className="border-b" data-campaign-id={campaign.id}>
+                            <TableCell >
+                                <input
+                                    type="checkbox"
+                                    className="rounded"
+                                    checked={selectedCampaigns.includes(campaign.id)}
+                                    onChange={() => toggleCampaignSelection(campaign.id)}
+                                />
+                            </TableCell>
+                            <TableCell className="text-blue-500 hover:underline">
+                                <Link to={`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`}>
                                     {campaign.name}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>{campaign.total_impressions}</TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
+                                </Link>
+                            </TableCell>
+                            <TableCell>{campaign.total_impressions || 0}</TableCell>
+                        </TableRow>
+                    ))}
+                    {data.assigned_campaigns.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={3} >This zone has no assigned campaigns</TableCell>
+                            <TableCell colSpan={3} className="py-4 text-center">This zone has no assigned campaigns</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
 
-            {/* Remove Campaign Button */}
+            {/* Remove Button */}
             <div>
                 <Button
-                    onClick={handleRemoveCampaigns}
+                    onClick={handleDeleteSelectedCampaigns}
                     disabled={selectedCampaigns.length === 0}
                     variant="destructive"
                 >
                     Remove
                 </Button>
             </div>
-        </div>
+        </>
     );
-}
+};
+
+export default ZoneManagement;

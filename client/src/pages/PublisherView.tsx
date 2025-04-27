@@ -28,7 +28,7 @@ type Publisher = {
 const PublisherView = () => {
     const [publisher, setPublisher] = useState<Publisher | null>(null);
     const [zones, setZones] = useState<Zone[]>([]);
-
+    const [zoneList,setZoneList] = useState<number[]>([]);
     const [searchParams] = useSearchParams();
 
     const [name,setName] = useState("");
@@ -46,7 +46,6 @@ const PublisherView = () => {
     };
 
     useEffect(() => {
-  
         fetchData();
     }, []);
 
@@ -80,17 +79,18 @@ const PublisherView = () => {
 
     async function handleDelete() {
         try {
-            const res = await fetch(`${base_url}/publisher/delete`,{
+            const res = await fetch(`${base_url}/zone/delete`,{
                 method:"POST",
                 headers:{
                     "Content-Type":"application/json"
                 },
                 body:JSON.stringify({
-                    publisherIDs:[publisher_id]
+                    ids:zoneList
                 })
             });
             if(res.ok){
                 toast.success("Delete Successful");
+                fetchData();
             }
         } catch {
             toast.success("Delete failed");
@@ -99,6 +99,14 @@ const PublisherView = () => {
 
     const navigate = useNavigate();
     
+    function toggleZoneSelect(zid: number): void {
+        if (zoneList.includes(zid)) {
+            setZoneList(zoneList.filter(id => id !== zid));
+        } else {
+            setZoneList([...zoneList, zid]);
+        }
+    }
+
     return (
         <Section>
             <h3 className="text-2xl font-bold mb-4">Publisher name: {publisher?.name}</h3>
@@ -170,7 +178,12 @@ const PublisherView = () => {
                             zones.map((zone) => (
                                 <TableRow key={zone.id} data-zone-id={zone.id}>
                                     <TableCell className="border-b">
-                                        <input type="checkbox" className="form-checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            checked={zoneList.includes(zone.id)}
+                                            onChange={() => toggleZoneSelect(zone.id)}
+                                        />
                                     </TableCell>
                                     <TableCell className=" border-b whitespace-nowrap hover:text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/publisher/zone/view?zone_id=${zone.id}`)}>{zone.name}</TableCell>
                                     <TableCell className="border-b whitespace-nowrap">
@@ -195,9 +208,9 @@ const PublisherView = () => {
                     id="zone-delete-button"
                     variant="destructive"
                     onClick={handleDelete}
+                    disabled={zoneList.length===0}
                 >
-                    <span className="text-xl">🗑️</span>
-                    <span>Delete</span>
+                    Delete
                 </Button>
             </div>
         </Section>
