@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { base_url } from '@/utils/baseUrl';
 import  { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface Zone {
   _id: string;
@@ -25,7 +25,8 @@ export default function Publishers() {
   const [publishers, setPublishers] = useState<Publisher[]>([]);
   const [newName, setNewName] = useState('');
   const [newDomain, setNewDomain] = useState('');
- 
+  const [publisherList,setPublisherList] = useState<number[]>([]);
+  
 
 
   async function fetchPublishers() {
@@ -43,7 +44,6 @@ export default function Publishers() {
     fetchPublishers();
   }, []);
 
-  const navigate = useNavigate();
 
   const { setOpen } = useModal();
 
@@ -63,6 +63,7 @@ export default function Publishers() {
 
       if(res.ok){
         setOpen(false);
+        toast.success("Creation Successful");
         fetchPublishers();
       }
     } catch  {
@@ -71,6 +72,35 @@ export default function Publishers() {
   }
 
   
+  function toggleCampaignSelection(pid: number): void {
+    if (publisherList.includes(pid)) {
+      setPublisherList(publisherList.filter(id => id !== pid));
+    } else {
+      setPublisherList([...publisherList, pid]);
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      const res = await fetch(`${base_url}/publisher/delete`,{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          ids: publisherList
+        })
+      })
+
+      if(res.ok){
+        toast.success("Delete Success");
+        fetchPublishers();
+      }
+    } catch {
+      toast.error("Delete failed");
+    }
+  }
+
   return (
     <Section >
       <div className="flex justify-between">
@@ -134,13 +164,21 @@ export default function Publishers() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {publishers.map((publisher, index) => (
-              <TableRow key={publisher._id}
-                onClick={() => navigate(`/admin/publisher/view?publisher_id=${publisher.id}`)}
-                className=" cursor-pointer"
-              >
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{publisher.name}</TableCell>
+            {publishers.map((publisher) => (
+              <TableRow key={publisher._id}>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={publisherList.includes(publisher.id)}
+                    onChange={() => toggleCampaignSelection(publisher.id)}
+                  />
+                </TableCell>
+                <TableCell className='text-blue-500 hover:underline'>
+                  <Link to={`/admin/publisher/view?publisher_id=${publisher.id}`}>
+                    {publisher.name}
+                  </Link>
+                </TableCell>
                 <TableCell>{publisher.zones.length}</TableCell>
               </TableRow>
             ))}
@@ -153,9 +191,10 @@ export default function Publishers() {
         <Button
           id="publisher-delete-button"
           variant="destructive"
-        // Implement delete logic here
+          disabled={publisherList.length===0}
+          onClick={handleDelete}
         >
-          🗑️ Delete
+          Delete
         </Button>
       </div>
     </Section>

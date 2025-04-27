@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="p-4">
-            <h3 className="text-2xl font-semibold mb-4 text-gray-800">Dashboard</h3>
+            <h3 className="text-2xl font-semibold mb-4">Dashboard</h3>
             <div className="bg-white p-6 rounded-2xl shadow-md">
                 {chartData.length > 0 ? (
                     <div className="h-96">

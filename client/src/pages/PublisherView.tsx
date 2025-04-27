@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Section from "@/components/Section";
 import { Button } from "@/components/ui/button";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/components/ui/animated-modal";
@@ -28,9 +28,10 @@ type Publisher = {
 const PublisherView = () => {
     const [publisher, setPublisher] = useState<Publisher | null>(null);
     const [zones, setZones] = useState<Zone[]>([]);
+
     const [searchParams] = useSearchParams();
 
-    const [name,setName] = useState("")
+    const [name,setName] = useState("");
 
     const publisher_id = searchParams.get("publisher_id");
     const fetchData = async () => {
@@ -77,15 +78,33 @@ const PublisherView = () => {
     }
 
 
+    async function handleDelete() {
+        try {
+            const res = await fetch(`${base_url}/publisher/delete`,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    publisherIDs:[publisher_id]
+                })
+            });
+            if(res.ok){
+                toast.success("Delete Successful");
+            }
+        } catch {
+            toast.success("Delete failed");
+        }
+    }
+
+    const navigate = useNavigate();
+    
     return (
         <Section>
-            <h3 className="text-2xl font-bold mb-4">{publisher?.name}</h3>
+            <h3 className="text-2xl font-bold mb-4">Publisher name: {publisher?.name}</h3>
 
             <div className="flex justify-between ">
-
-
                 <h4 className="text-xl font-semibold mb-2">Zones</h4>
-
                 <Modal>
                     <ModalTrigger>
                         <Button>
@@ -136,9 +155,6 @@ const PublisherView = () => {
                 </Modal>
 
             </div>
-
-            
-
             <div className="overflow-x-auto mt-6">
                 <Table>
                     <TableHeader>
@@ -153,19 +169,19 @@ const PublisherView = () => {
                         {zones.length > 0 ? (
                             zones.map((zone) => (
                                 <TableRow key={zone.id} data-zone-id={zone.id}>
-                                    <TableCell className="py-2 px-4 border-b">
+                                    <TableCell className="border-b">
                                         <input type="checkbox" className="form-checkbox" />
                                     </TableCell>
-                                    <TableCell className="py-2 px-4 border-b whitespace-nowrap">{zone.name}</TableCell>
-                                    <TableCell className="py-2 px-4 border-b whitespace-nowrap">
+                                    <TableCell className=" border-b whitespace-nowrap hover:text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/publisher/zone/view?zone_id=${zone.id}`)}>{zone.name}</TableCell>
+                                    <TableCell className="border-b whitespace-nowrap">
                                         {zone.width}x{zone.height}
                                     </TableCell>
-                                    <TableCell className="py-2 px-4 border-b whitespace-nowrap">{zone.placements.length}</TableCell>
+                                    <TableCell className="border-b whitespace-nowrap">{zone.placements.length}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                                    <TableCell colSpan={4} className="text-center py-4">
                                     This publisher has no zones
                                 </TableCell>
                             </TableRow>
@@ -178,6 +194,7 @@ const PublisherView = () => {
                 <Button
                     id="zone-delete-button"
                     variant="destructive"
+                    onClick={handleDelete}
                 >
                     <span className="text-xl">🗑️</span>
                     <span>Delete</span>

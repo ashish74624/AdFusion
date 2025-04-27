@@ -40,7 +40,7 @@ router.get("/zone/view", async(req, res, next) => {
       assignedCampaigns.push(campaign);
     }
 
-    return res.render("zone/view", {
+    return res.json( {
       publishers: publishersAndZones,
       advertisers: advertisersAndZones,
       zone: zone,

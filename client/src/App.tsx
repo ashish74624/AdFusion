@@ -4,11 +4,12 @@ import Home from './pages/Home';
 import Admin from './pages/Admin';
 import Dashboard from './pages/Dashboard';
 import Publishers from './pages/Publisher';
-import PublisherView from './pages/View';
+import PublisherView from './pages/PublisherView';
 import { ModalProvider } from './components/ui/animated-modal';
 import AdvertiserList from './pages/AdvertiserList';
 import AdvertiserView from './pages/AdvertiserView';
 import CampaignManager from './pages/CampaignView';
+import ZoneView from './pages/ZoneView';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
             <Route path='dashboard' element={<Dashboard />} />
             <Route path='publisher' element={<Publishers />} />
             <Route path='publisher/view' element={<PublisherView />} />
+            <Route path='publisher/zone/view' element={<ZoneView />} />
             <Route path='advertiser' element={<AdvertiserList />} />
             <Route path='advertiser/view' element={<AdvertiserView />} />
             <Route path='advertiser/campaign/view' element={<CampaignManager />} />

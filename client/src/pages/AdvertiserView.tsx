@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { base_url } from "@/utils/baseUrl";
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 type CampaignAssignment = {
@@ -49,32 +50,43 @@ const AdvertiserView = () => {
 
     const advertiser_id = searchParams.get("advertiser_id");
 
-
+    const fetchAdvertiserData = async () => {
+        try {
+            const response = await fetch(`${base_url}/advertiser/view?advertiser_id=${advertiser_id}`);
+            const data = await response.json();
+            setAdvertiser(data.advertiser);
+            setCampaigns(data.campaigns);
+        } catch (error) {
+            console.error("Error fetching advertiser data:", error);
+        }
+    };
     useEffect(() => {
-        const fetchAdvertiserData = async () => {
-            try {
-                const response = await fetch(`${base_url}/advertiser/view?advertiser_id=${advertiser_id}`);
-                const data = await response.json();
-                setAdvertiser(data.advertiser);
-                setCampaigns(data.campaigns);
-            } catch (error) {
-                console.error("Error fetching advertiser data:", error);
-            }
-        };
+    
 
         fetchAdvertiserData();
     }, [searchParams, advertiser_id]);
 
-    // const handleCreateCampaign = () => {
-    //     if (!newCampaignName.trim()) return;
-    //     const newCampaign: Campaign = {
-    //         id: Date.now(),
-    //         name: newCampaignName,
-    //     };
-    //     setCampaigns([...campaigns, newCampaign]);
-    //     setNewCampaignName("");
-    //     setIsModalOpen(false);
-    // };
+    const handleCreateCampaign = async() => {
+        try {
+            const res = await fetch(`${base_url}/campaign/create`,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    advertiser_id: advertiser_id,
+                    name: newCampaignName
+                })
+            })
+
+            if(res.ok){
+                fetchAdvertiserData();
+                toast.success("New campaign created");
+            }
+        } catch  {
+            toast.error("Failed to create new campaign");
+        }
+    };
 
     const navigate = useNavigate();
 
@@ -109,7 +121,7 @@ const AdvertiserView = () => {
                             </div>
                         </ModalContent>
                         <ModalFooter className="gap-4">
-                            <Button>
+                            <Button onClick={handleCreateCampaign}>
                                 Create
                             </Button>
                         </ModalFooter>

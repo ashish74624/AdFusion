@@ -80,6 +80,7 @@ router.post("/publisher/delete", async(req, res) => {
       }
 
       // Delete a publisher
+      console.log("here")
       await Publisher.delete({ id: publisherID });
     }
 
