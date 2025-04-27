@@ -72,7 +72,7 @@ export default function Publishers() {
   }
 
   
-  function toggleCampaignSelection(pid: number): void {
+  function togglePublisherSelection(pid: number): void {
     if (publisherList.includes(pid)) {
       setPublisherList(publisherList.filter(id => id !== pid));
     } else {
@@ -171,7 +171,7 @@ export default function Publishers() {
                     type="checkbox"
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     checked={publisherList.includes(publisher.id)}
-                    onChange={() => toggleCampaignSelection(publisher.id)}
+                    onChange={() => togglePublisherSelection(publisher.id)}
                   />
                 </TableCell>
                 <TableCell className='text-blue-500 hover:underline'>

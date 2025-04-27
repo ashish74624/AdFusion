@@ -4,9 +4,9 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { base_url } from "@/utils/baseUrl";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link,  useSearchParams } from "react-router-dom";
 
 type CampaignAssignment = {
     id: number;
@@ -47,7 +47,7 @@ const AdvertiserView = () => {
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [newCampaignName, setNewCampaignName] = useState("");
     const [searchParams] = useSearchParams();
-
+    const [campaignList,setCampaignList] = useState<number[]>([]);
     const advertiser_id = searchParams.get("advertiser_id");
 
     const fetchAdvertiserData = async () => {
@@ -61,34 +61,62 @@ const AdvertiserView = () => {
         }
     };
     useEffect(() => {
-    
+
 
         fetchAdvertiserData();
     }, [searchParams, advertiser_id]);
 
-    const handleCreateCampaign = async() => {
+    const handleCreateCampaign = async () => {
         try {
-            const res = await fetch(`${base_url}/campaign/create`,{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
+            const res = await fetch(`${base_url}/campaign/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-                body:JSON.stringify({
+                body: JSON.stringify({
                     advertiser_id: advertiser_id,
                     name: newCampaignName
                 })
             })
 
-            if(res.ok){
+            if (res.ok) {
                 fetchAdvertiserData();
                 toast.success("New campaign created");
             }
-        } catch  {
+        } catch {
             toast.error("Failed to create new campaign");
         }
     };
 
-    const navigate = useNavigate();
+
+    function toggleCampaignSelection(cid: number): void {
+        if (campaignList.includes(cid)) {
+            setCampaignList(campaignList.filter(id => id !== cid));
+        } else {
+            setCampaignList([...campaignList, cid]);
+        }
+    }
+
+    const handleDeleteCampaigns =async()=>{
+        try {
+            const res = await fetch(`${base_url}/campaign/delete`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ids: campaignList
+                })
+            })
+
+            if (res.ok) {
+                toast.success("Delete Success");
+                fetchAdvertiserData();
+            }
+        } catch {
+            toast.error("Delete failed");
+        }
+    }
 
     return (
         <>
@@ -142,9 +170,20 @@ const AdvertiserView = () => {
                     </TableHeader>
                     <TableBody>
                         {campaigns.map((campaign) => (
-                            <TableRow key={campaign.id} onClick={() => navigate(`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`)} >
-                                <TableCell  ></TableCell>
-                                <TableCell  >{campaign.name}</TableCell>
+                            <TableRow key={campaign.id} >
+                                <TableCell  >
+                                    <input
+                                        type="checkbox"
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        checked={campaignList.includes(campaign.id)}
+                                        onChange={() => toggleCampaignSelection(campaign.id)}
+                                    />
+                                </TableCell>
+                                <TableCell className="text-blue-500 hover:underline">
+                                    <Link to={`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`}>
+                                        {campaign.name}
+                                    </Link>
+                                </TableCell>
                                 <TableCell  >{campaign.campaign_assignments?.length || 0}</TableCell>
                                 <TableCell  >{campaign.placements?.length || 0}</TableCell>
                             </TableRow>
@@ -153,16 +192,16 @@ const AdvertiserView = () => {
                 </Table>
             </div>
 
-            {/* <div className="mt-4">
-                <button
+            <div className="mt-4">
+                <Button
                     onClick={handleDeleteCampaigns}
-                    className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded"
                     type="button"
+                    variant="destructive"
+                    disabled={campaignList.length===0}
                 >
-                    <span className="text-xl font-bold">×</span>
-                    <span>Delete</span>
-                </button>
-            </div> */}
+                    Delete
+                </Button>
+            </div>
         </>
     );
 };
