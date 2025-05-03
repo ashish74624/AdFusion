@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Check, Code } from "lucide-react";
+import { Code } from "lucide-react";
 import { base_url } from "@/utils/baseUrl";
 import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/animated-modal";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -241,7 +241,6 @@ const ZoneManagement: React.FC = () => {
                             <Table className="w-full border-collapse mb-4">
                                 <TableHeader>
                                     <TableRow className="border-b">
-                                        <TableCell></TableCell>
                                         <TableCell>Campaign</TableCell>
                                         <TableCell>Eligible Ad Items</TableCell>
                                         <TableCell>Advertiser</TableCell>
@@ -252,14 +251,9 @@ const ZoneManagement: React.FC = () => {
                                         advertiser.campaigns.map(campaign => (
                                             <TableRow
                                                 key={campaign.id}
-                                                className="border-b cursor-pointer"
+                                                className="border-b cursor-pointer hover:text-blue-500"
                                                 onClick={() => handleCampaignAssign(campaign.id)}
                                             >
-                                                <TableCell>
-                                                    <Button className="border rounded p-1">
-                                                        <Check className="h-4 w-4" />
-                                                    </Button>
-                                                </TableCell>
                                                 <TableCell>
                                                     {campaign.name}
                                                 </TableCell>
@@ -287,9 +281,9 @@ const ZoneManagement: React.FC = () => {
             <Table className="w-full border-collapse mb-4">
                 <TableHeader>
                     <TableRow className="border-b">
-                        <th className="py-2 text-left w-16"></th>
-                        <th className="py-2 text-left">Name</th>
-                        <th className="py-2 text-left">Total Impressions</th>
+                        <TableHead className="py-2 text-left w-16"></TableHead>
+                        <TableHead className="py-2 text-left">Name</TableHead>
+                        <TableHead className="py-2 text-left">Total Impressions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
