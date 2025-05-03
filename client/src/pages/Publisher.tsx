@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { base_url } from '@/utils/baseUrl';
 import  { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface Zone {
   _id: string;
@@ -101,6 +101,9 @@ export default function Publishers() {
     }
   }
 
+      const navigate = useNavigate();
+  
+
   return (
     <Section >
       <div className="flex justify-between">
@@ -174,10 +177,10 @@ export default function Publishers() {
                     onChange={() => togglePublisherSelection(publisher.id)}
                   />
                 </TableCell>
-                <TableCell className='text-blue-500 hover:underline'>
-                  <Link to={`/admin/publisher/view?publisher_id=${publisher.id}`}>
+                <TableCell className='text-blue-500 hover:underline cursor-pointer' onClick={() => navigate(`/admin/publisher/view?publisher_id=${publisher.id}`)}>
+                 
                     {publisher.name}
-                  </Link>
+              
                 </TableCell>
                 <TableCell>{publisher.zones.length}</TableCell>
               </TableRow>

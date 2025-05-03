@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { base_url } from "@/utils/baseUrl";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Link,  useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type CampaignAssignment = {
     id: number;
@@ -47,7 +47,7 @@ const AdvertiserView = () => {
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [newCampaignName, setNewCampaignName] = useState("");
     const [searchParams] = useSearchParams();
-    const [campaignList,setCampaignList] = useState<number[]>([]);
+    const [campaignList, setCampaignList] = useState<number[]>([]);
     const advertiser_id = searchParams.get("advertiser_id");
 
     const fetchAdvertiserData = async () => {
@@ -56,8 +56,8 @@ const AdvertiserView = () => {
             const data = await response.json();
             setAdvertiser(data.advertiser);
             setCampaigns(data.campaigns);
-        } catch (error) {
-            console.error("Error fetching advertiser data:", error);
+        } catch {
+            toast.error("Error fetching advertiser data:");
         }
     };
     useEffect(() => {
@@ -97,7 +97,7 @@ const AdvertiserView = () => {
         }
     }
 
-    const handleDeleteCampaigns =async()=>{
+    const handleDeleteCampaigns = async () => {
         try {
             const res = await fetch(`${base_url}/campaign/delete`, {
                 method: "POST",
@@ -117,6 +117,9 @@ const AdvertiserView = () => {
             toast.error("Delete failed");
         }
     }
+
+    const navigate = useNavigate();
+
 
     return (
         <>
@@ -179,10 +182,10 @@ const AdvertiserView = () => {
                                         onChange={() => toggleCampaignSelection(campaign.id)}
                                     />
                                 </TableCell>
-                                <TableCell className="text-blue-500 hover:underline">
-                                    <Link to={`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`}>
-                                        {campaign.name}
-                                    </Link>
+                                <TableCell className="text-blue-500 hover:underline cursor-pointer "
+                                    onClick={() => navigate(`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`)}
+                                >
+                                    {campaign.name}
                                 </TableCell>
                                 <TableCell  >{campaign.campaign_assignments?.length || 0}</TableCell>
                                 <TableCell  >{campaign.placements?.length || 0}</TableCell>
@@ -197,7 +200,7 @@ const AdvertiserView = () => {
                     onClick={handleDeleteCampaigns}
                     type="button"
                     variant="destructive"
-                    disabled={campaignList.length===0}
+                    disabled={campaignList.length === 0}
                 >
                     Delete
                 </Button>

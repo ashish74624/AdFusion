@@ -102,13 +102,11 @@ export default function AdvertiserList() {
                     <TableBody>
                         {advertisers.length > 0 ? (
                             advertisers.map((advertiser) => (
-                                <TableRow key={advertiser.id} data-advertiser-id={advertiser.id}
-                                    onClick={() => navigate(`/admin/advertiser/view?advertiser_id=${advertiser.id}`)}
-                                >
+                                <TableRow key={advertiser.id} data-advertiser-id={advertiser.id}>
                                     <TableCell>
                                         <input type="checkbox" className="h-4 w-4" />
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="whitespace-nowrap text-blue-500 cursor-pointer hover:underline" onClick={() => navigate(`/admin/advertiser/view?advertiser_id=${advertiser.id}`)}>
                                         {advertiser.name}
                                     </TableCell>
                                     <TableCell>

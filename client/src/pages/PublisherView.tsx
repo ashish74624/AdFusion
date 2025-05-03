@@ -186,7 +186,7 @@ const PublisherView = () => {
                                             onChange={() => toggleZoneSelect(zone.id)}
                                         />
                                     </TableCell>
-                                    <TableCell className=" border-b whitespace-nowrap hover:text-blue-500 cursor-pointer" onClick={() => navigate(`/admin/publisher/zone/view?zone_id=${zone.id}`)}>{zone.name}</TableCell>
+                                    <TableCell className=" border-b whitespace-nowrap text-blue-500 cursor-pointer hover:underline" onClick={() => navigate(`/admin/publisher/zone/view?zone_id=${zone.id}`)}>{zone.name}</TableCell>
                                     <TableCell className="border-b whitespace-nowrap">
                                         {zone.width}x{zone.height}
                                     </TableCell>

@@ -5,7 +5,7 @@ import { Modal, ModalBody, ModalContent, ModalTrigger } from "@/components/ui/an
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // TypeScript interfaces
 interface Zone {
@@ -164,10 +164,13 @@ const ZoneManagement: React.FC = () => {
             }
         });
     };
+    const navigate = useNavigate();
 
     if (!data) {
         return <div className="p-4">Loading...</div>;
     }
+
+
 
     return (
         <>
@@ -300,10 +303,8 @@ const ZoneManagement: React.FC = () => {
                                     onChange={() => toggleCampaignSelection(campaign.id)}
                                 />
                             </TableCell>
-                            <TableCell className="text-blue-500 hover:underline">
-                                <Link to={`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`}>
+                            <TableCell className="text-blue-500 hover:underline cursor-pointer " onClick={() => navigate(`/admin/advertiser/campaign/view?campaign_id=${campaign.id}`)}>
                                     {campaign.name}
-                                </Link>
                             </TableCell>
                             <TableCell>{campaign.total_impressions || 0}</TableCell>
                         </TableRow>
