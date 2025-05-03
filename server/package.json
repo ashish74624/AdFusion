@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "nodemon  src/app.js",
-    "build": "babel -d ./dist ./src -s"
+    "dev": "nodemon  src/app.js"
   },
   "repository": {
     "type": "git",
