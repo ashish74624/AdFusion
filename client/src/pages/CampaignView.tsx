@@ -109,15 +109,6 @@ const CampaignManager = () => {
         }
     }
 
-
-    const toggleZoneSelection=(zid:number)=>{
-        if (zoneIds.includes(zid)) {
-            setZoneIds(zoneIds.filter(id => id !== zid));
-        } else {
-            setZoneIds([...zoneIds, zid]);
-        }
-    }
-
     async function deleteItems(isAd:boolean) {
         try {
             const url = isAd ? `${base_url}/aditem/delete` : `${base_url}/zone/delete`
@@ -286,60 +277,9 @@ const CampaignManager = () => {
             </div>
 
             {/* Zone Assignments */}
-            <div className="flex justify-between">
-                <h4 className="text-xl font-light mt-12">Zone Assignments</h4>
-                
-                <Modal>
-                    <ModalTrigger>
-                        <Button>
-                            Assign to Zone
-                        </Button>
-                    </ModalTrigger>
-                    <ModalBody>
-                        <ModalContent className="h-max">
-                            <h4 className="text-xl mb-2">Select a Zone</h4>
-                            <h6 className="text-sm mb-4 text-gray-600">
-                                Eligible Zones for {campaignName}
-                            </h6>
-
-                            <Table className="border">
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead  >Select</TableHead>
-                                        <TableHead  >Name</TableHead>
-                                        <TableHead  >Publisher</TableHead>
-                                        <TableHead  >Zone Dimensions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {zones.length > 0 ? (
-                                        zones.map((zone) => (
-                                            <TableRow key={zone.id} className="cursor-pointer">
-                                                <TableCell className="p-2 border text-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                        
-                                                    />
-                                                </TableCell>
-                                                <TableCell>{zone.name}</TableCell>
-                                                <TableCell>{zone.publisher}</TableCell>
-                                                <TableCell>{zone.dimensions}</TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell className="p-4 border text-center" colSpan={4}>
-                                                No Zones Found
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-
-                        </ModalContent>
-                    </ModalBody>
-                </Modal>
+            <div className="flex gap-2 h-max items-end font-light mt-12">
+                <h4 className="text-xl ">Zone Assignments</h4>
+                <span>Assigned by the Publishers</span>
             </div>
            
 
@@ -347,22 +287,17 @@ const CampaignManager = () => {
             <Table className="border">
                 <TableHeader>
                     <TableRow>
-                        <TableHead  >Select</TableHead>
-                        <TableHead  >Name</TableHead>
-                        <TableHead  >Total Impressions</TableHead>
+                        <TableHead></TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Total Impressions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {zones.length > 0 ? (
-                        zones.map((zone) => (
+                        zones.map((zone,i) => (
                             <TableRow key={zone.id}>
                                 <TableCell className="p-2 border text-center">
-                                    <input
-                                        type="checkbox"
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                        checked={zoneIds.includes(zone.id)}
-                                        onChange={() => toggleZoneSelection(zone.id)}
-                                    />
+                                   {i+1}
                                 </TableCell>
                                 <TableCell>{zone.name}</TableCell>
                                 <TableCell>{zone.total_impressions}</TableCell>
@@ -377,12 +312,6 @@ const CampaignManager = () => {
                     )}
                 </TableBody>
             </Table>
-
-            <div className="my-4">
-                <Button variant="destructive" disabled={zoneIds.length === 0} onClick={() => deleteItems(false)} >
-                    Remove
-                </Button>
-            </div>
         </div>
     );
 };
