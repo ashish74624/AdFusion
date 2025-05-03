@@ -50,5 +50,9 @@ app.use((err, req, res, next) => {
   res.sendStatus(500);
 });
 
+// app.get('/',(req,res)=>{
+//   return res.
+// })
+
 // ────────────────────────────────────────
 app.listen(port, () => console.log("Server running on port", port));
