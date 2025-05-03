@@ -25,7 +25,7 @@ router.post("/aditem/create", async(req, res) => {
       html_target: htmlTarget
     });
 
-    await CampaignAssignment.create({
+    await CampaignAssignment.create({ 
       "advertisement.id": adItem.id,
       "campaign.id": campaignID
     });

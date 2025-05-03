@@ -127,16 +127,6 @@ export default function AdvertiserList() {
                 </Table>
             </div>
 
-            {/* <div className="mt-6">
-                <button
-                    id="advertiser-delete-button"
-                    className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition"
-                    type="button"
-                >
-                    <span className="mr-2 text-xl">❌</span>
-                    <span>Delete</span>
-                </button>
-            </div> */}
         </>
     );
 }

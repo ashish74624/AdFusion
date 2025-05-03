@@ -15,7 +15,7 @@ export default function Home() {
                     </div>
                 </div>
             </h2>
-            <Link to="/admin">
+            <Link to="/admin/dashboard">
                 <Button variant="ghost" >
                     Get Started
                 </Button>

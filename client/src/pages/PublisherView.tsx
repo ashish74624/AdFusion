@@ -69,6 +69,7 @@ const PublisherView = () => {
                 })
             });
             if (res.ok) {
+                toast.success("Zone added successfully")
                 fetchData();
             }
         } catch {

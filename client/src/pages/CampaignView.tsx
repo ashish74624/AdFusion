@@ -2,7 +2,7 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { base_url } from "@/utils/baseUrl";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 
@@ -28,28 +28,125 @@ const CampaignManager = () => {
     const [campaignName, setCampaignName] = useState("");
     const [adItems, setAdItems] = useState<AdItem[]>([]);
     const [zones, setZones] = useState<Zone[]>([]);
-
+    const [adItemName,setAdItemName] = useState("");
+    const [adItemDestUrl, setAdItemDestUrl] = useState("");
+    const [adItemImgSrc,setAdItemImgSrc] = useState("");
+    const [selectedSize, setSelectedSize] = useState("300x250");
+    const [target, setTarget] = useState("_blank"); 
+    const [adIds,setAdIds] = useState<number[]>([]);
+    const [zoneIds,setZoneIds] = useState<number[]>([]);
+    const handleTargetChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setTarget(e.target.value);
+    };
+    
     const [searchParams] = useSearchParams();
 
     const campaignId = searchParams.get("campaign_id");
 
+    // Update the useEffect dependency array
+    useEffect(() => {
+        if (campaignId) {
+            fetchData();
+        }
+    }, [campaignId]); // Include campaignId as a dependency
+
+    // Improve the fetchData function
     const fetchData = async () => {
         try {
             const res = await fetch(`${base_url}/campaign/view?campaign_id=${campaignId}`);
-            if (res.ok) {
-                const data = await res.json();
+            if (!res.ok) {
+                throw new Error('API response was not ok');
+            }
+
+            const data = await res.json();
+            console.log("API response:", data);
+
+            // Check if data has the expected structure
+            if (data && data.campaign) {
                 setCampaignName(data.campaign.name);
-                setAdItems(data.ad_items);
-                setZones(data.zones);
+                setAdItems(data.ad_items || []);
+                setZones(data.zones || []);
+            } else {
+                toast.error("Invalid response format");
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            toast.error("Unable to fetch data");
+        }
+    };
+
+    async function createAdItem() {
+        try {
+            const res = await fetch(`${base_url}/aditem/create`,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    campaign_id: campaignId,
+                    name:adItemName,
+                    link: adItemDestUrl,
+                    image_url: adItemImgSrc,
+                    size: selectedSize,
+                    html_target: target
+                })
+            })
+
+            if(res.ok){
+                toast.success("Ad item added");
+                fetchData();
             }
         } catch {
-            toast.error("Unable to fetch data");
+            toast.error("Failed to add ad item");
         }
     }
 
-    useEffect(() => {
-        fetchData();
-    }, [campaignId, searchParams])
+    const toggleAdSelection=(aid:number)=>{
+        if (adIds.includes(aid)) {
+            setAdIds(adIds.filter(id => id !== aid));
+        } else {
+            setAdIds([...adIds, aid]);
+        }
+    }
+
+
+    const toggleZoneSelection=(zid:number)=>{
+        if (zoneIds.includes(zid)) {
+            setZoneIds(zoneIds.filter(id => id !== zid));
+        } else {
+            setZoneIds([...zoneIds, zid]);
+        }
+    }
+
+    async function deleteItems(isAd:boolean) {
+        try {
+            const url = isAd ? `${base_url}/aditem/delete` : `${base_url}/zone/delete`
+            const res = await fetch(url,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    ids: isAd ? adIds: zoneIds
+                })
+            });
+
+            if(res.ok){
+                toast.success("Deletion Success");
+                fetchData();
+                if(isAd){
+                    setAdIds([]);
+                }else{
+                    setZoneIds([]);
+                }
+            }else{
+                throw new Error("");
+            }
+        } catch {
+            toast.error("Deletion failed");
+
+        }
+    }
 
     return (
         <div className="p-4">
@@ -64,7 +161,7 @@ const CampaignManager = () => {
                     <ModalTrigger>
                         <Button>
                             Add New
-                        </Button>
+                        </Button> 
                     </ModalTrigger>
                     <ModalBody>
                         <ModalContent className="h-max">
@@ -73,22 +170,32 @@ const CampaignManager = () => {
                             <div className="space-y-4">
                                 <div>
                                     <label className="block mb-1">Name</label>
-                                    <input className="w-full border px-3 py-2 rounded" type="text" placeholder="Ad name" />
+                                    <input className="w-full border px-3 py-2 rounded" type="text" placeholder="Ad name"
+                                    value={adItemName}
+                                    onChange={(e)=>setAdItemName(e.target.value)} />
                                 </div>
 
                                 <div>
                                     <label className="block mb-1">Destination URL</label>
-                                    <input className="w-full border px-3 py-2 rounded" type="text" placeholder="http://" />
+                                    <input className="w-full border px-3 py-2 rounded" 
+                                    value={adItemDestUrl}
+                                    onChange={(e)=>{setAdItemDestUrl(e.target.value)}}
+                                    type="text" placeholder="http://" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-1">Image source</label>
-                                    <input className="w-full border px-3 py-2 rounded" type="text" placeholder="http://" />
+                                    <input className="w-full border px-3 py-2 rounded"
+                                    value={adItemImgSrc} 
+                                    onChange={(e)=>setAdItemImgSrc(e.target.value)}
+                                    type="text" placeholder="http://" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-1">Size</label>
-                                    <select className="w-full border px-3 py-2 rounded bg-[#0b0a0b]">
+                                    <select className="w-full border px-3 py-2 rounded bg-[#0b0a0b]"
+                                        onChange={(e) => setSelectedSize(e.target.value)}
+                                    >
                                         <option disabled>IAB Core Ad Units:</option>
                                         <option value="300x250">300x250 - Medium Rectangle</option>
                                         <option value="180x150">180x150 - Rectangle</option>
@@ -100,11 +207,25 @@ const CampaignManager = () => {
                                     <label className="block mb-1">Target Window</label>
                                     <div className="flex space-x-4">
                                         <label>
-                                            <input className="mr-1" type="radio" name="target" value="_blank" defaultChecked />
+                                            <input
+                                                className="mr-1"
+                                                type="radio"
+                                                name="target"
+                                                value="_blank"
+                                                checked={target === "_blank"}
+                                                onChange={handleTargetChange}
+                                            />
                                             New
                                         </label>
                                         <label>
-                                            <input className="mr-1" type="radio" name="target" value="" />
+                                            <input
+                                                className="mr-1"
+                                                type="radio"
+                                                name="target"
+                                                value=""
+                                                checked={target === ""}
+                                                onChange={handleTargetChange}
+                                            />
                                             Same
                                         </label>
                                     </div>
@@ -113,7 +234,7 @@ const CampaignManager = () => {
 
                         </ModalContent>
                         <ModalFooter className="gap-4">
-                            <Button>
+                            <Button onClick={createAdItem}>
                                 Save Ad Item
                             </Button>
                         </ModalFooter>
@@ -125,10 +246,10 @@ const CampaignManager = () => {
             <Table className="border">
                 <TableHeader>
                     <TableRow>
-                        <TableHead  >Select</TableHead>
-                        <TableHead  >Name</TableHead>
-                        <TableHead  >Total Impressions</TableHead>
-                        <TableHead  >Clicks</TableHead>
+                        <TableHead>Select</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Total Impressions</TableHead>
+                        <TableHead>Clicks</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -136,7 +257,12 @@ const CampaignManager = () => {
                         adItems.map((adItem) => (
                             <TableRow key={adItem.id}>
                                 <TableCell >
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        checked={adIds.includes(adItem.id)}
+                                        onChange={() => toggleAdSelection(adItem.id)}
+                                    />
                                 </TableCell>
                                 <TableCell>{adItem.name}</TableCell>
                                 <TableCell>{adItem.total_impressions}</TableCell>
@@ -154,7 +280,7 @@ const CampaignManager = () => {
             </Table>
 
             <div className="my-4">
-                <Button variant="destructive">
+                <Button variant="destructive" disabled={adIds.length===0} onClick={()=>deleteItems(true)}>
                     Delete
                 </Button>
             </div>
@@ -190,7 +316,11 @@ const CampaignManager = () => {
                                         zones.map((zone) => (
                                             <TableRow key={zone.id} className="cursor-pointer">
                                                 <TableCell className="p-2 border text-center">
-                                                    <input type="checkbox" />
+                                                    <input
+                                                        type="checkbox"
+                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        
+                                                    />
                                                 </TableCell>
                                                 <TableCell>{zone.name}</TableCell>
                                                 <TableCell>{zone.publisher}</TableCell>
@@ -207,20 +337,7 @@ const CampaignManager = () => {
                                 </TableBody>
                             </Table>
 
-                            {/* <div className="flex justify-end mt-4">
-                                <button
-                                    className="px-4 py-2 border rounded"
-                                    onClick={() => setShowZoneModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                            </div> */}
                         </ModalContent>
-                        {/* <ModalFooter className="gap-4">
-                            <Button>
-                                Save Ad Item
-                            </Button>
-                        </ModalFooter> */}
                     </ModalBody>
                 </Modal>
             </div>
@@ -240,7 +357,12 @@ const CampaignManager = () => {
                         zones.map((zone) => (
                             <TableRow key={zone.id}>
                                 <TableCell className="p-2 border text-center">
-                                    <input type="checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        checked={zoneIds.includes(zone.id)}
+                                        onChange={() => toggleZoneSelection(zone.id)}
+                                    />
                                 </TableCell>
                                 <TableCell>{zone.name}</TableCell>
                                 <TableCell>{zone.total_impressions}</TableCell>
@@ -257,7 +379,7 @@ const CampaignManager = () => {
             </Table>
 
             <div className="my-4">
-                <Button variant="destructive">
+                <Button variant="destructive" disabled={zoneIds.length === 0} onClick={() => deleteItems(false)} >
                     Remove
                 </Button>
             </div>
