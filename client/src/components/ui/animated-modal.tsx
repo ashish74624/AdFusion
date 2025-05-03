@@ -79,6 +79,7 @@ export const ModalBody = ({
 
   const modalRef = useRef(null);
   const { setOpen } = useModal();
+  // @ts-expect-error modal
   useOutsideClick(modalRef, () => setOpen(false));
 
   return (
