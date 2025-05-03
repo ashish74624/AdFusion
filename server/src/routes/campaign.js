@@ -70,13 +70,6 @@ router.get("/campaign/view", async(req, res, next) => {
       zones.push(zone);
     }
 
-    // return res.render("campaign/view", {
-    //   publishers: publishersAndZones,
-    //   advertisers: advertisersAndZones,
-    //   campaign: campaign,
-    //   ad_items: adItems,
-    //   zones: zones
-    // });
     return res.json({
       publishers: publishersAndZones,
       advertisers: advertisersAndZones,

@@ -14,11 +14,6 @@ router.get("/advertiser/list", async(req, res, next) => {
     const publishersAndZones = await Publisher.listAndZones({ });
     const advertisersAndZones = await Advertiser.listAndCampaigns({ });
 
-    // return res.render("advertiser/list", {
-    //   publishers: publishersAndZones,
-    //   advertisers: advertisersAndZones
-    // });
-
     return res.json({
        publishers: publishersAndZones,
       advertisers: advertisersAndZones
@@ -36,13 +31,6 @@ router.get("/advertiser/view", async(req, res, next) => {
     const advertiserID = parseInt(req.query.advertiser_id);
     const advertiser = await Advertiser.retrieve({ id: advertiserID });
     const campaigns = await Campaign.listAndCampaignAssignments({ advertiser: advertiserID });
-
-    // return res.render("advertiser/view", {
-    //   publishers: publishersAndZones,
-    //   advertisers: advertisersAndZones,
-    //   advertiser: advertiser,
-    //   campaigns: campaigns
-    // });
 
     return res.json({
        publishers: publishersAndZones,

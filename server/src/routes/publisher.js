@@ -12,11 +12,6 @@ router.get("/publisher/list", async(req, res, next) => {
     const publishersAndZones = await Publisher.listAndZones({ });
     const advertisersAndZones = await Advertiser.listAndCampaigns({ });
 
-    // return res.render("publisher/list", {
-    //   publishers: publishersAndZones,
-    //   advertisers: advertisersAndZones
-    // });
-
     return res.json( {
       publishers: publishersAndZones,
       advertisers: advertisersAndZones
