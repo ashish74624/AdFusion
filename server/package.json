@@ -1,17 +1,12 @@
 {
-  "name": "adserver-tutorial",
-  "description": "Adserver Tutorial for platform developers",
+  "name": "adfusion",
+  "description": "",
   "type": "module",
   "scripts": {
     "start": "node dist/app.js",
     "dev": "nodemon  src/app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kijepark/adserver-tutorial.git"
-  },
-  "author": "Kije Park",
-  "license": "MIT",
+  "author": "Ashish Kumar",
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
