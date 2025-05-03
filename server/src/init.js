@@ -27,8 +27,8 @@ export default async() => {
       name: "Default Ad Item",
       width: 300,
       height: 250,
-      location: "http://kijepark.com",
-      creative_url: "https://i.ibb.co/kqR8Z8r/banner.jpg",
+      location: "https://github.com/ashish74624",
+      creative_url: "https://image-get.vercel.app/ashishkumar74624@gmail.com/github/github.jpg",
       html_target: "_blank"
     });
     const campaignAssignment = await CampaignAssignment.create({

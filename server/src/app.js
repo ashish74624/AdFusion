@@ -10,21 +10,25 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from 'cors';
-import config from "../config.json" assert { type: "json" };
 import router from "./router.js";
 import init from "./init.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app  = express();
 const port = 3001;
 
 // ────────────────────────────────────────
-// DB connection
-const {  options: databaseOptions } = config.database;
-mongoose.connect(process.env.MONGO_DB_URL, databaseOptions, (err) => {
+
+mongoose.connect(process.env.MONGO_DB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}, (err) => {
   if (err) return console.error(err);
   console.log("MongoDB connected");
   init();             // create default data
 });
+
 
 app.use(cors({
   origin: "*",
