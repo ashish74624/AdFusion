@@ -1,7 +1,7 @@
 
 # Ad Server Platform - AdFusion
 
-A full-stack ad serving platform that implements core functionality similar to Google AdSense, allowing publishers to monetize their websites and advertisers to run ad campaigns.
+A full-stack ad serving platform that implements core functionality similar to Google AdSense, allowing publishers to display ads on their websites and advertisers to run targeted ad campaigns.
 
 ## Features
 
