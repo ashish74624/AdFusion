@@ -1,6 +1,5 @@
 {
   "database": {
-    "uri": "mongodb://localhost/adserver",
     "options": {
       "useNewUrlParser": true,
       "useUnifiedTopology": true,

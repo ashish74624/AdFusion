@@ -19,8 +19,8 @@ const port = 3001;
 
 // ────────────────────────────────────────
 // DB connection
-const { uri: databaseUri, options: databaseOptions } = config.database;
-mongoose.connect(databaseUri, databaseOptions, (err) => {
+const {  options: databaseOptions } = config.database;
+mongoose.connect(process.env.MONGO_DB_URL, databaseOptions, (err) => {
   if (err) return console.error(err);
   console.log("MongoDB connected");
   init();             // create default data
